@@ -1,0 +1,19 @@
+# MacOS garbage
+.DS_Store
+
+# temp files
+*~*
+
+# generated files
+bin/
+gen/
+build/
+
+# Intellij project files
+*.iml
+*.ipr
+*.iws
+.idea/
+
+go-rabbit
+go-rabbit.*
