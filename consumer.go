@@ -134,7 +134,7 @@ func (c *Consumer) consume() {
 	go c.doConsume()
 
 	// Loop to check connection
-	go checkConnection(c.log, c.conn, c.deliveryChan, foreverChan, checkConnInterval)
+	go checkConnection(c.log, c.conn, foreverChan, checkConnInterval)
 
 	c.log.Info(" [*] Waiting for events . To exit press CTRL+C")
 	<-foreverChan

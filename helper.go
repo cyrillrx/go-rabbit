@@ -46,7 +46,6 @@ func consumeQueue(ch *amqp.Channel, q amqp.Queue) (<-chan amqp.Delivery, error) 
 func checkConnection(
 	log xlog.Logger,
 	conn *amqp.Connection,
-	deliveryChan <-chan amqp.Delivery,
 	foreverChan chan bool,
 	interval time.Duration) {
 
