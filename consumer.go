@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	retryDelay        = 5 * time.Second
+	retryDelay        = 1 * time.Minute
 	checkConnInterval = 5 * time.Minute
 )
 
@@ -68,7 +68,7 @@ func (c *Consumer) Start() {
 	for {
 		c.doStart()
 
-		c.log.Info("Waiting 5 sec before retrying")
+		c.log.Info("Waiting 1 min before retrying")
 		time.Sleep(retryDelay)
 	}
 }
@@ -136,7 +136,7 @@ func (c *Consumer) consume() {
 	// Loop to check connection
 	go checkConnection(c.log, c.conn, foreverChan, checkConnInterval)
 
-	c.log.Info(" [*] Waiting for events . To exit press CTRL+C")
+	c.log.Info("Waiting for events . To exit press CTRL+C")
 	<-foreverChan
 }
 
@@ -157,16 +157,29 @@ func (c *Consumer) bindToQueue() (<-chan amqp.Delivery, error) {
 	}
 	c.log.Infof("Queue '%s' declared", c.queueName)
 
+	var errs []error
+	var targetCount int
+	var boundCount int
 	for exchangeName, routingKeys := range c.exchanges {
 		for _, routingKey := range routingKeys {
+			targetCount++
+
 			err = bindQueue(c.ch, q, exchangeName, routingKey)
 			if err != nil {
-				return nil, fmt.Errorf(
-					"Failed to bind to the exchange '%s' with routing key '%s': %v",
-					exchangeName, routingKey, err)
+				errs = append(errs, err)
+				continue
 			}
+			boundCount++
 			c.log.Infof("Bound to exchange '%s' with routing key '%s'", exchangeName, routingKey)
 		}
+	}
+
+	if boundCount == 0 {
+		return nil, fmt.Errorf("Couldn't bind routing keys. %d/%d'", boundCount, targetCount)
+	}
+
+	if boundCount < targetCount {
+		c.log.Warnf("Failed to bind all routing keys %d/%d: %v", boundCount, targetCount, errs)
 	}
 
 	deliveryChan, err := consumeQueue(c.ch, q)
