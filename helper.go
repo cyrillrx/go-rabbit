@@ -7,6 +7,19 @@ import (
 	"github.com/streadway/amqp"
 )
 
+func declareExchange(ch *amqp.Channel, exchangeName string) error {
+
+	return ch.ExchangeDeclare(
+		exchangeName, // name
+		"topic",      // type
+		true,         // durable
+		false,        // auto-deleted
+		false,        // internal
+		false,        // no-wait
+		nil,          // arguments
+	)
+}
+
 func declareQueue(ch *amqp.Channel, queueName string) (amqp.Queue, error) {
 
 	return ch.QueueDeclare(

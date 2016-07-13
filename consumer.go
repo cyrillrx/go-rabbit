@@ -161,6 +161,12 @@ func (c *Consumer) bindToQueue() (<-chan amqp.Delivery, error) {
 	var targetCount int
 	var boundCount int
 	for exchangeName, routingKeys := range c.exchanges {
+
+		err = declareExchange(c.ch, exchangeName)
+		if err != nil {
+			return nil, fmt.Errorf("Couldn't declare exchange %s: %v'", exchangeName, err)
+		}
+
 		for _, routingKey := range routingKeys {
 			targetCount++
 
