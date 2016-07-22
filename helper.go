@@ -55,6 +55,19 @@ func consumeQueue(ch *amqp.Channel, q amqp.Queue) (<-chan amqp.Delivery, error) 
 	)
 }
 
+func sendMessage(ch *amqp.Channel, exchangeName, routingKey, msg string) error {
+
+	return ch.Publish(
+		exchangeName, // exchange
+		routingKey,   // routing key
+		false,        // mandatory
+		false,        // immediate
+		amqp.Publishing{
+			ContentType: "text/plain",
+			Body:        []byte(msg),
+		})
+}
+
 // Checks if the AMQP connection is still on
 func checkConnection(
 	log xlog.Logger,
