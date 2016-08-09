@@ -87,6 +87,7 @@ func tryToConnect(
 	conn *amqp.Connection,
 	foreverChan chan bool) {
 
+	log.Info("Checking connection to Rabbit")
 	ch, err := conn.Channel()
 	if err != nil {
 		log.Errorf("Checking channel failed: %s", err)
