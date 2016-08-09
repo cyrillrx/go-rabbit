@@ -12,7 +12,7 @@ import (
 
 const (
 	retryDelay        = 1 * time.Minute
-	checkConnInterval = 5 * time.Minute
+	checkConnInterval = 30 * time.Minute
 )
 
 var (

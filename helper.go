@@ -76,14 +76,22 @@ func checkConnection(
 	interval time.Duration) {
 
 	for {
-		ch, err := conn.Channel()
-		if err != nil {
-			log.Errorf("Checking channel failed: %s", err)
-			close(foreverChan)
-			return
-		}
-		defer ch.Close()
-
+		tryToConnect(log, conn, foreverChan)
 		time.Sleep(interval)
 	}
+}
+
+// Checks if the AMQP connection is still on
+func tryToConnect(
+	log xlog.Logger,
+	conn *amqp.Connection,
+	foreverChan chan bool) {
+
+	ch, err := conn.Channel()
+	if err != nil {
+		log.Errorf("Checking channel failed: %s", err)
+		close(foreverChan)
+		return
+	}
+	ch.Close()
 }
