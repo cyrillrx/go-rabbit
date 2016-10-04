@@ -33,6 +33,7 @@ type Consumer struct {
 	ch           *amqp.Channel
 	deliveryChan <-chan amqp.Delivery
 	handlers     []func(amqp.Delivery)
+	declareQueue func(ch *amqp.Channel, queueName string) (amqp.Queue, error)
 	exchanges    map[string][]string // map of exchange names and corresponding routing keys
 
 	amqpURL    string
@@ -47,19 +48,25 @@ type Consumer struct {
 func NewConsumer(logger xlog.Logger, amqpURL, queueName string, exchangeMap map[string][]string) *Consumer {
 
 	return &Consumer{
-		log:        logger,
-		amqpURL:    amqpURL,
-		amqpLogURL: string(urlCredRe.ReplaceAll([]byte(amqpURL), []byte(":***@"))),
-		exchanges:  exchangeMap,
-		queueName:  queueName,
-		tryConnect: 0,
-		tryChannel: 0,
+		log:          logger,
+		amqpURL:      amqpURL,
+		amqpLogURL:   string(urlCredRe.ReplaceAll([]byte(amqpURL), []byte(":***@"))),
+		exchanges:    exchangeMap,
+		queueName:    queueName,
+		declareQueue: declareQueue,
+		tryConnect:   0,
+		tryChannel:   0,
 	}
 }
 
 // AddHandler Adds a message handler to the consumer
 func (c *Consumer) AddHandler(h func(amqp.Delivery)) {
 	c.handlers = append(c.handlers, h)
+}
+
+// SetDeclareQueue Allows overriding of the default queue declaration method
+func (c *Consumer) SetDeclareQueue(b func(ch *amqp.Channel, queueName string) (amqp.Queue, error)) {
+	c.declareQueue = b
 }
 
 // Start Calls doStart in a loop to handle connection loss
@@ -151,7 +158,7 @@ func (c *Consumer) doConsume() {
 
 func (c *Consumer) bindToQueue() (<-chan amqp.Delivery, error) {
 
-	q, err := declareQueue(c.ch, c.queueName)
+	q, err := c.declareQueue(c.ch, c.queueName)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to declare the queue '%s': %v", c.queueName, err)
 	}
