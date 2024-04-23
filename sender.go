@@ -3,13 +3,12 @@ package rabbitmq
 import (
 	"fmt"
 
-	"github.com/rs/xlog"
-	"github.com/streadway/amqp"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 // Sender connects to an AMQP server and performs queue and exchange bindings
 type Sender struct {
-	log          xlog.Logger
+	log          Logger
 	conn         *amqp.Connection
 	ch           *amqp.Channel
 	deliveryChan <-chan amqp.Delivery
@@ -26,7 +25,7 @@ type Sender struct {
 }
 
 // NewSender Created a new AMQP sender
-func NewSender(logger xlog.Logger, amqpURL, exchangeName, routingKey string) *Sender {
+func NewSender(logger Logger, amqpURL, exchangeName, routingKey string) *Sender {
 
 	s := &Sender{
 		log:          logger,

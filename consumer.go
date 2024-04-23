@@ -6,8 +6,7 @@ import (
 	"regexp"
 	"time"
 
-	"github.com/rs/xlog"
-	"github.com/streadway/amqp"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 const (
@@ -28,7 +27,7 @@ var (
 
 // Consumer connects to an AMQP server and performs queue and exchange bindings
 type Consumer struct {
-	log          xlog.Logger
+	log          Logger
 	conn         *amqp.Connection
 	ch           *amqp.Channel
 	deliveryChan <-chan amqp.Delivery
@@ -45,7 +44,7 @@ type Consumer struct {
 }
 
 // NewConsumer Creates a RabbitMQ consumer for the given AMQP URL
-func NewConsumer(logger xlog.Logger, amqpURL, queueName string, exchangeMap map[string][]string) *Consumer {
+func NewConsumer(logger Logger, amqpURL, queueName string, exchangeMap map[string][]string) *Consumer {
 
 	return &Consumer{
 		log:          logger,

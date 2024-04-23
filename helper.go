@@ -3,8 +3,7 @@ package rabbitmq
 import (
 	"time"
 
-	"github.com/rs/xlog"
-	"github.com/streadway/amqp"
+	amqp "github.com/rabbitmq/amqp091-go"
 )
 
 func declareExchange(ch *amqp.Channel, exchangeName string) error {
@@ -70,7 +69,7 @@ func sendMessage(ch *amqp.Channel, exchangeName, routingKey, msg string) error {
 
 // Checks if the AMQP connection is still on
 func checkConnection(
-	log xlog.Logger,
+	log Logger,
 	conn *amqp.Connection,
 	foreverChan chan bool,
 	interval time.Duration) {
@@ -83,7 +82,7 @@ func checkConnection(
 
 // Checks if the AMQP connection is still on
 func tryToConnect(
-	log xlog.Logger,
+	log Logger,
 	conn *amqp.Connection,
 	foreverChan chan bool) {
 
